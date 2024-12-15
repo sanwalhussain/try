@@ -20,19 +20,14 @@ RUN apt-get update && apt-get install -y \
 # Clone the MetaDrive repository
 RUN git clone https://github.com/metadriverse/metadrive.git /app/metadrive
 
-# Copy all local files into the MetaDrive directory
+# Copy all local files into the MetaDrive directory, including the updated requirements.txt
 COPY . /app/metadrive
 
-# Install Python dependencies
-RUN pip install --upgrade pip && pip install \
-    shapely \
-    scipy \
-    pygments \
-    gltf \
-    seaborn \
-    opencv-python \
-    progressbar \
-    gymnasium
+# Change working directory to the MetaDrive repository
+WORKDIR /app/metadrive
+
+# Install Python dependencies from requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Set environment variables
 ENV MODEL_PATH=/app/metadrive/model_path
@@ -44,4 +39,4 @@ RUN mkdir -p $MODEL_PATH
 EXPOSE 8080
 
 # Set the command to run the application
-CMD ["python", "/app/metadrive/main.py"]
+CMD ["python", "main.py"]
