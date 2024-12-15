@@ -4,14 +4,10 @@ FROM python:3.12-slim
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the application code into the container
-COPY . /app
-
-# Ensure the model_path directory exists for saving trained models
-RUN mkdir -p /app/model_path
-
-# Install system dependencies required for MetaDrive and other packages
+# Install system dependencies required for MetaDrive and other Python packages
 RUN apt-get update && apt-get install -y \
+    git \
+    build-essential \
     libgl1 \
     libgl1-mesa-glx \
     libglib2.0-0 \
@@ -21,30 +17,31 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-RUN pip install --upgrade pip \
-    && pip install \
-       torch \
-       numpy \
-       matplotlib \
-       pygame \
-       panda3d \
-       shapely \
-       scipy \
-       pygments \
-       gltf \
-       seaborn \
-       opencv-python \
-       tqdm \
-       gymnasium \
-       imageio \
-       metadrive
+# Clone the MetaDrive repository
+RUN git clone https://github.com/metadriverse/metadrive.git /app/metadrive
 
-# Set environment variables for saving models
-ENV MODEL_PATH=/app/model_path
+# Copy all local files into the MetaDrive directory
+COPY . /app/metadrive
+
+# Install Python dependencies
+RUN pip install --upgrade pip && pip install \
+    shapely \
+    scipy \
+    pygments \
+    gltf \
+    seaborn \
+    opencv-python \
+    progressbar \
+    gymnasium
+
+# Set environment variables
+ENV MODEL_PATH=/app/metadrive/model_path
+
+# Ensure the model_path directory exists
+RUN mkdir -p $MODEL_PATH
 
 # Expose any required ports (if needed for the application)
 EXPOSE 8080
 
 # Set the command to run the application
-CMD ["python", "main.py"]
+CMD ["python", "/app/metadrive/main.py"]
