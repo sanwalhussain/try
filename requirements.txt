@@ -9,3 +9,6 @@ gymnasium
 torch
 pygame
 panda3d
+tqdm
+matplotlib 
+imageio 
