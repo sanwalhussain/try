@@ -8,3 +8,4 @@ progressbar
 gymnasium
 torch
 pygame
+panda3d
