@@ -9,10 +9,10 @@ def main():
     # Suppress OpenMP runtime warning
     os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-    # Create the `path` folder if it doesn't exist
-    folder_name = "path"
-    if not os.path.exists(folder_name):
-        os.makedirs(folder_name)
+    # Create the `model_path` folder if it doesn't exist
+    model_path = "model_path"
+    if not os.path.exists(model_path):
+        os.makedirs(model_path)
 
     # Create the environment
     env = create_env()
@@ -23,12 +23,12 @@ def main():
     policy = PPOPolicy(obs_dim, act_dim)
 
     # Load the latest existing model
-    model_files = [f for f in os.listdir(folder_name) if f.endswith('.pth')]
+    model_files = [f for f in os.listdir(model_path) if f.endswith('.pth')]
     if model_files:
-        latest_model = max(model_files, key=lambda x: os.path.getctime(os.path.join(folder_name, x)))
-        model_path = os.path.join(folder_name, latest_model)
-        print(f"Loading existing model: {model_path}")
-        policy.load_state_dict(torch.load(model_path))
+        latest_model = max(model_files, key=lambda x: os.path.getctime(os.path.join(model_path, x)))
+        model_file_path = os.path.join(model_path, latest_model)
+        print(f"Loading existing model: {model_file_path}")
+        policy.load_state_dict(torch.load(model_file_path))
     else:
         print("No existing model found. Starting training from scratch.")
 
@@ -44,16 +44,16 @@ def main():
 
     # Train the agent
     rewards, losses = trainer.train(
-        num_episodes=4,          # Train for a larger number of episodes
+        num_episodes=500,          # Train for a larger number of episodes
         steps_per_update=2048,     # Steps per policy update
         epochs=10                  # Number of epochs per update
     )
 
     # Save the trained model with a unique name
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    new_model_path = os.path.join(folder_name, f"ppo_metadrive_model_{timestamp}.pth")
-    torch.save(policy.state_dict(), new_model_path)
-    print(f"Final model saved at {new_model_path}")
+    new_model_file_path = os.path.join(model_path, f"ppo_metadrive_model_{timestamp}.pth")
+    torch.save(policy.state_dict(), new_model_file_path)
+    print(f"Final model saved at {new_model_file_path}")
 
     # Plot training rewards and losses
     plt.figure(figsize=(12, 6))
@@ -74,7 +74,7 @@ def main():
     plt.grid(True)
 
     # Save the plots
-    plot_path = os.path.join(folder_name, f"training_rewards_and_loss_plot_{timestamp}.png")
+    plot_path = os.path.join(model_path, f"training_rewards_and_loss_plot_{timestamp}.png")
     plt.savefig(plot_path)
     print(f"Training plots saved at {plot_path}")
     plt.show()

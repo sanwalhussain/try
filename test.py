@@ -5,21 +5,21 @@ from policy import PPOPolicy
 import imageio
 
 def test_model():
-    # Define the `path` folder
-    folder_name = "path"
-    if not os.path.exists(folder_name):
-        print("No `path` folder found. Please train a model first.")
+    # Define the `model_path` folder
+    model_path = "model_path"
+    if not os.path.exists(model_path):
+        print("No `model_path` folder found. Please train a model first.")
         return
 
-    # Find the latest `.pth` file in the `path` folder
-    model_files = [f for f in os.listdir(folder_name) if f.endswith('.pth')]
+    # Find the latest `.pth` file in the `model_path` folder
+    model_files = [f for f in os.listdir(model_path) if f.endswith('.pth')]
     if not model_files:
-        print("No .pth files found in the `path` folder. Please train a model first.")
+        print("No .pth files found in the `model_path` folder. Please train a model first.")
         return
-    latest_model = max(model_files, key=lambda x: os.path.getctime(os.path.join(folder_name, x)))
-    model_path = os.path.join(folder_name, latest_model)
+    latest_model = max(model_files, key=lambda x: os.path.getctime(os.path.join(model_path, x)))
+    model_file_path = os.path.join(model_path, latest_model)
 
-    print(f"Loading model: {model_path}...")
+    print(f"Loading model: {model_file_path}...")
 
     # Create the environment
     env = create_env()
@@ -28,12 +28,12 @@ def test_model():
     policy = PPOPolicy(obs_dim, act_dim)
 
     # Load the model
-    policy.load_state_dict(torch.load(model_path))
+    policy.load_state_dict(torch.load(model_file_path))
     policy.eval()
 
     # Prepare for GIF recording
     gif_frames = []
-    output_gif_path = os.path.join(folder_name, "top_down_simulation.gif")
+    output_gif_path = os.path.join(model_path, "top_down_simulation.gif")
 
     # Evaluate the model for 5000 steps
     max_steps = 5000  # Total steps to run

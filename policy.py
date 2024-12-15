@@ -1,4 +1,4 @@
-import os  # Ensure os is imported for saving files
+import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -54,11 +54,11 @@ class PPOTrainer:
 
     def train(self, num_episodes, steps_per_update, epochs):
         all_rewards, all_losses = [], []
-        folder_name = "path"
+        model_path = "model_path"
 
-        # Ensure the path folder exists
-        if not os.path.exists(folder_name):
-            os.makedirs(folder_name)
+        # Ensure the model_path folder exists
+        if not os.path.exists(model_path):
+            os.makedirs(model_path)
 
         for episode in range(num_episodes):
             obs, _ = self.env.reset()
@@ -102,7 +102,7 @@ class PPOTrainer:
 
             # Save model periodically (every 10 episodes)
             if (episode + 1) % 10 == 0:
-                torch.save(self.policy.state_dict(), os.path.join(folder_name, "ppo_metadrive_model.pth"))
+                torch.save(self.policy.state_dict(), os.path.join(model_path, "ppo_metadrive_model.pth"))
                 print(f"Checkpoint saved at episode {episode + 1}")
 
         return all_rewards, all_losses
